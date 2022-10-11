@@ -4,13 +4,14 @@ import pandas as pd
 """I create the first part of this scrapping exercise, I want to get three
 functions who scrappe the most used rental pages of Prague, for the day that one
 friend need to get new department to live"""
+
 # make variables to store the scrapped data
 title = []
 price_rental = []
 price_commission = []
 price_deposit = []
 price_monthly_fee = []
-acreage = []
+meters = []
 district = []
 street = []
 available_from = []
@@ -68,7 +69,7 @@ def ulu_rentals():
             'dispositions': [],
             'furnishing': [],
             'is_price_commision_free': None,
-            'limit': 80,
+            'limit': 600,
             'offer_type_id': None,
             'page': str(x), # changed to go across pages
             'price_from': '',
@@ -87,17 +88,18 @@ def ulu_rentals():
             price_deposit.append(response_json['offers'][i]['price_deposit'])
             available_from.append(response_json['offers'][i]['available_from'])
             price_monthly_fee = response_json['offers'][i]['price_monthly_fee']
-            acreage.append(response_json['offers'][i]['acreage'])
+            meters.append(response_json['offers'][i]['acreage'])
             street.append(response_json['offers'][i]['street']['label'])
             district.append(response_json['offers'][i]['village_part']['label'])
             title.append(response_json['offers'][i]['seo'])
             link.append(response_json['offers'][i]['absolute_url'])
         # make a dataframe in pandas and send to excel file
-        df_ulu = pd.DataFrame({'Title': title, 'District': district, 'Street': street,
-                          'Available_from': available_from, 'Acreage': acreage,
-                          'Price_rental': price_rental, 'Monthly_fee': price_monthly_fee,
-                          'Deposit': price_deposit, 'Commission': price_commission,
-                          'Link': link})
+        df_ulu = pd.DataFrame({'Title': title, 'Available_from': available_from,
+                               'Meters': meters,'Price_rental': price_rental,
+                               'Monthly_fee': price_monthly_fee,
+                               'Deposit': price_deposit,
+                               'Commission': price_commission, 'Link': link
+                               })
         df_ulu.to_excel('uludomov_first_attemp.xlsx', index=False)
         return df_ulu
 ulu_rentals()
