@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import requests
 import pandas as pd
 
@@ -5,20 +6,15 @@ import pandas as pd
 functions who scrappe the most used rental pages of Prague, for the day that one
 friend need to get new department to live"""
 
-# make variables to store the scrapped data
-title = []
-price_rental = []
-price_commission = []
-price_deposit = []
-price_monthly_fee = []
-meters = []
-district = []
-street = []
-available_from = []
-link = []
-# make a function who scrape the modified curl
+# variables to store the scrapped data
+title, price_rental, price_commission, price_deposit, price_monthly_fee, meters,\
+district, street, available_from, link = [], [], [], [], [], [],[], [] ,[], []
+
+
 def ulu_rentals():
-    # loop for get all the apartments with te requirements
+    """ Function who get the data from the uludomov api and return response_json
+    object from automatic curl transformation."""
+
     for x in range(1, 30):
         cookies = {
             'visitorId': 'c0da1df8-ed19-4f8f-ac2e-943aafcdedb7',
@@ -81,25 +77,81 @@ def ulu_rentals():
         # post requests with cookies, headers and data and create json object
         response = requests.post('https://www.ulovdomov.cz/fe-api/find', cookies=cookies, headers=headers, json=json_data)
         response_json = response.json()
-        # for loop to get the required data
+        return response_json
+
+def get_data(response_json):
+    """Function who get the required data and append to global lists, to after
+    make a pandas dataframe."""
+
+    try:
         for i in range(1, len(response_json['offers'])):
-            price_rental.append(response_json['offers'][i]['price_rental'])
-            price_commission.append(response_json['offers'][i]['price_commission'])
-            price_deposit.append(response_json['offers'][i]['price_deposit'])
-            available_from.append(response_json['offers'][i]['available_from'])
-            price_monthly_fee = response_json['offers'][i]['price_monthly_fee']
-            meters.append(response_json['offers'][i]['acreage'])
-            street.append(response_json['offers'][i]['street']['label'])
-            district.append(response_json['offers'][i]['village_part']['label'])
-            title.append(response_json['offers'][i]['seo'])
-            link.append(response_json['offers'][i]['absolute_url'])
-        # make a dataframe in pandas and send to excel file
-        df_ulu = pd.DataFrame({'Title': title, 'Available_from': available_from,
-                               'Meters': meters,'Price_rental': price_rental,
-                               'Monthly_fee': price_monthly_fee,
-                               'Deposit': price_deposit,
-                               'Commission': price_commission, 'Link': link
-                               })
-        df_ulu.to_excel('uludomov_first_attemp.xlsx', index=False)
-        return df_ulu
-ulu_rentals()
+            if response_json['offers'][i]['price_rental']:
+                price_rental.append(response_json['offers'][i]['price_rental'])
+            else:
+                price_rental.append('N/A')
+            if response_json['offers'][i]['price_commission']:
+                price_commission.append(response_json['offers'][i]['price_commission'])
+            else:
+                price_commission.append('N/A')
+            if response_json['offers'][i]['price_deposit']:
+                price_deposit.append(response_json['offers'][i]['price_deposit'])
+            else:
+                price_deposit.append('N/A')
+            if response_json['offers'][i]['available_from']:
+                available_from.append(response_json['offers'][i]['available_from'])
+            else:
+                available_from.append('N/A')
+            if response_json['offers'][i]['price_monthly_fee']:
+                price_monthly_fee.append(response_json['offers'][i]['price_monthly_fee'])
+            else:
+                price_monthly_fee.append('N/A')
+            if response_json['offers'][i]['acreage']:
+                meters.append(response_json['offers'][i]['acreage'])
+            else:
+                meters.append('N/A')
+            if response_json['offers'][i]['street']['label']:
+                street.append(response_json['offers'][i]['street']['label'])
+            else:
+                street.append('N/A')
+            if response_json['offers'][i]['village_part']['label']:
+                district.append(response_json['offers'][i]['village_part']['label'])
+            else:
+                district.append('N/A')
+            if response_json['offers'][i]['seo']:
+                title.append(response_json['offers'][i]['seo'])
+            else:
+                title.append('N/A')
+            if response_json['offers'][i]['absolute_url']:
+                link.append(response_json['offers'][i]['absolute_url'])
+            else:
+                link.append('N/A')
+    except:
+        pass
+
+def make_df():
+    """Function to create pandas dataframe and return it for posterior
+    manipulation."""
+
+    df_ulu = pd.DataFrame({'Title': title, 'Available_from': available_from,
+                           'Meters': meters,'Price_rental': price_rental,
+                           'Monthly_fee': price_monthly_fee,
+                           'Deposit': price_deposit,
+                           'Commission': price_commission, 'Link': link
+                           })
+    return df_ulu
+
+def pd_to_excel(df):
+    """Function to create a excel sheet from dataframe."""
+    return df.to_excel('uludomov_first_attemp.xlsx', index=False)
+
+def main():
+    """ Get the data and return excel_file """
+    response_json = ulu_rentals()
+    get_data(response_json)
+    ulu_df = make_df()
+    df = make_df()
+    pd_to_excel(df)
+    return df
+
+if __name__ == '__main__':
+    main()

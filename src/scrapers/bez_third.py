@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -6,32 +7,35 @@ import pandas as pd
 """ The second scrapper who get the rents from bezrealitky in Prague to add in
 one index and display """
 
-#The api urls and the list to work with their
-urls = ['https://api.bezrealitky.cz/sitemap_en/sitemap_detail_1.xml',
+""" Api Urls and empty lists for data """
+URLS = ['https://api.bezrealitky.cz/sitemap_en/sitemap_detail_1.xml',
  'https://api.bezrealitky.cz/sitemap_en/sitemap_detail_2.xml']
 praha_flats, titles, listings, layouts, ad_links, avalaible_data, meters,\
 prices, basic_rents, utilities = [], [], [], [], [], [], [], [], [], []
 
-def bezrealitky_rentals():
-    #For loop who iterates over urls, get a response object and append links to list
-    for url in urls:
-        r = requests.get(url)
-        soup = BeautifulSoup(r.text, 'lxml')
-        links = soup.find_all('url')
-        for link in links:
-            try:
-                url = link.find('loc').text
-                description = link.find('image:title').text
-                praha = re.search(r'rent.*praha', description.lower())
-                if praha:
-                    praha_flats.append(url)
-            except:
-                pass
-    #For loop who iterates over the links and append to lists the needed data
+def get_soup(url):
+    """ Get the soup object for urls """
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, 'lxml')
+    return soup
+
+def get_flat_urls(soup):
+    links = soup.find_all('url')
+    for link in links:
+        try:
+            url = link.find('loc').text
+            description = link.find('image:title').text
+            praha = re.search(r'rent.*praha', description.lower())
+            if praha:
+                praha_flats.append(url)
+        except:
+            pass
+
+def get_flats_data(praha_flats):
+    """ Get flats data and append to lists """
     for flat in praha_flats:
         try:
-            r = requests.get(flat)
-            soup = BeautifulSoup(r.text, "lxml")
+            soup = get_soup(flat)
             title = soup.find('span', {'class': 'PropertyAttributes_propertyAttributesItem__kscom'}).a
             title = title.text
             parameters = soup.find('div', {'class' : 'ParamsTable_paramsTableGroup__IIJ_u'})
@@ -85,12 +89,33 @@ def bezrealitky_rentals():
         except:
             pass
 
-    #Part who create a pandas dataframe to deploy
+def make_df():
+    """ Make pandas dataframe to manipulate data """
     df_bez = pd.DataFrame({'Title': titles, 'Layout': layouts,
                            'Available_from': avalaible_data,
                            'Meters': meters, 'Price_rental': prices,
                            'Monthly_fee': utilities, 'Link': ad_links
                           })
-
-    df_bez.to_excel('bezrealitky_first_attemp.xlsx', index=False)
     return df_bez
+
+def make_excel(df):
+    """ Make excel file from dataframe """
+    excel_file = df.to_excel('bezrealitky_first_attemp.xlsx', index=False)
+    return excel_file
+
+def main_urls(urls):
+    """ Get soup objects from main_urls """
+    for url in urls:
+        soup = get_soup(url)
+        get_flat_urls(soup)
+
+def main():
+    """ Function to import who parse from Urls to excel """
+    main_urls(URLS)
+    get_flats_data(praha_flats)
+    df = make_df()
+    make_excel(df)
+    return df
+
+if __name__=='__main__':
+    main()
