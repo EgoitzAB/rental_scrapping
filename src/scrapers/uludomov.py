@@ -17,15 +17,11 @@ def ulu_rentals():
 
     for x in range(1, 30):
         cookies = {
-            'visitorId': 'c0da1df8-ed19-4f8f-ac2e-943aafcdedb7',
-            'ssupp.vid': 'viVd4JAS4b7ct',
-            'ssupp.visits': '1',
-            'nette-samesite': '1',
-            'PHPSESSID': 'de9b3192833d1173b081986495879170',
+            #get and insert the cookie
         }
 
         headers = {
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0',
+            'User-Agent': #insert your user agent
             'Accept': 'application/json, text/plain, */*',
             'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
             # 'Accept-Encoding': 'gzip, deflate, br',
@@ -36,7 +32,7 @@ def ulu_rentals():
             'Connection': 'keep-alive',
             'Referer': 'https://www.ulovdomov.cz/vyhledavani/pronajem/Praha?cena-do=12000-kc&bounds=50.177403%3B14.706795%3B49.941936%3B14.224453',
             # Requests sorts cookies= alphabetically
-            # 'Cookie': 'visitorId=c0da1df8-ed19-4f8f-ac2e-943aafcdedb7; ssupp.vid=viVd4JAS4b7ct; ssupp.visits=1; nette-samesite=1; PHPSESSID=de9b3192833d1173b081986495879170',
+            # 'Cookie': get the cookie
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',

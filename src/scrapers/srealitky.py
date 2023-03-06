@@ -9,16 +9,16 @@ from io import BytesIO
 in robots.txt, so I will leave the sitemap and structure for who want to crawl """
 
 SITE_URL = "https://www.sreality.cz/sitemap1.xml.gz"
-
+flat_urls = []
 def get_sitemap(site_url):
     """ Get sitemap to obtain later the links. """
     headers = CaseInsensitiveDict()
-    headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0"
+    headers["User-Agent"] = #insert user agent
     headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
     headers["Accept-Language"] = "es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3"
     headers["Accept-Encoding"] = "gzip, deflate, br"
     headers["Connection"] = "keep-alive"
-    headers["Cookie"] = "lps=eyJfZnJlc2giOmZhbHNlLCJfcGVybWFuZW50Ijp0cnVlfQ.Y06p8A.c3psuSExTI5jn9-Rr05NWsX0hMU; qusnyQusny=qusny; __cc=RHM0a2E5SWNZUGFuOXpocjsxNjY2MTE0MDQ5:QzVmS1Z5MmN2RENER1RFSjsxNjY2MTI4NDQ5; .seznam.cz|sid=id=15137327952714860790|t=1666099652.499|te=1666099708.053|c=449A85009E6C81CAD8B1BE4CD2C139F0; sid=id=15137327952714860790|t=1666099652.499|te=1666099708.053|c=449A85009E6C81CAD8B1BE4CD2C139F0; sid=id=15137327952714860790|t=1666099652.499|te=1666099658.923|c=F26BC42B373E98DF1BC9BD6D3D37330A; cmpredirectinterval=1666704458881; euconsent-v2=CPhCz0APhCz0AD3ACCENClCgAAAAAAAAAATIAAAAAAAA.YAAAAAAAAAAA; szncmpone=0; szncsr=1666100656; seznam.cz|szncmpone=0"
+    headers["Cookie"] = #insert cookie
     headers["Upgrade-Insecure-Requests"] = "1"
     headers["Sec-Fetch-Dest"] = "document"
     headers["Sec-Fetch-Mode"] = "navigate"
@@ -41,11 +41,27 @@ def get_links(xml):
     prohibits the scrapping """
     soup = BeautifulSoup(xml, 'lxml')
     links = soup.find_all('loc')
+    links = [link.text for link in links]
     return links
 
+def make_soup(url):
+    """ Get the soup for each link """
+    response = requests.get(url)
+    print(response)
+
+    soup = BeautifulSoup(response.content, 'lxml')
+    print(soup)
+    data = soup.find_all('ul')
+    for dat in data:
+        print(dat)
+
+
 if __name__ == '__main__':
-    sitemap = get_sitemap(SITE_URL)
-    decompress = descompress_sitemap(sitemap)
-    links = get_links(decompress)
-    for link in links:
-        print(link.text)
+    #sitemap = get_sitemap(SITE_URL)
+    with open('praha_flat.txt', 'rb') as file:
+        file = file.read()
+        descompress = descompress_sitemap(file)
+        flat_url = get_links(descompress)
+        for url in flat_url:
+            soup = make_soup(url)
+
