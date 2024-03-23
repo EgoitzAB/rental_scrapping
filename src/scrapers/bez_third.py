@@ -9,7 +9,7 @@ one index and display """
 
 """ Api Urls and empty lists for data """
 URLS = ['https://api.bezrealitky.cz/sitemap_en/sitemap_detail_1.xml',
- 'https://api.bezrealitky.cz/sitemap_en/sitemap_detail_2.xml']
+'https://api.bezrealitky.cz/sitemap_en/sitemap_detail_2.xml']
 praha_flats, titles, listings, layouts, ad_links, avalaible_data, meters,\
 prices, basic_rents, utilities = [], [], [], [], [], [], [], [], [], []
 

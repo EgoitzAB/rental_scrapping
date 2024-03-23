@@ -10,15 +10,24 @@ in robots.txt, so I will leave the sitemap and structure for who want to crawl "
 
 SITE_URL = "https://www.sreality.cz/sitemap1.xml.gz"
 flat_urls = []
-def get_sitemap(site_url):
+
+def get_cookie(site_url):
+    """ Get cookie from a site. """
+    headers = {
+        "User-Agent": 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
+    }
+    resp = requests.get(site_url, headers=headers)
+    cookies = resp.cookies
+    return cookies
+
+def get_sitemap(site_url, cookies):
     """ Get sitemap to obtain later the links. """
     headers = CaseInsensitiveDict()
-    headers["User-Agent"] = #insert user agent
+    headers["User-Agent"] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
     headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
     headers["Accept-Language"] = "es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3"
     headers["Accept-Encoding"] = "gzip, deflate, br"
     headers["Connection"] = "keep-alive"
-    headers["Cookie"] = #insert cookie
     headers["Upgrade-Insecure-Requests"] = "1"
     headers["Sec-Fetch-Dest"] = "document"
     headers["Sec-Fetch-Mode"] = "navigate"
@@ -26,7 +35,7 @@ def get_sitemap(site_url):
     headers["Sec-Fetch-User"] = "?1"
     headers["Sec-GPC"] = "1"
     headers["DNT"] = "1"
-    resp = requests.get(site_url, headers=headers)
+    resp = requests.get(site_url, headers=headers, cookies=cookies)
     return resp.content
 
 def descompress_sitemap(site_response):
@@ -44,24 +53,23 @@ def get_links(xml):
     links = [link.text for link in links]
     return links
 
-def make_soup(url):
+def make_soup(url, cookies):
     """ Get the soup for each link """
-    response = requests.get(url)
-    print(response)
-
+    headers = {
+        "User-Agent": 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
+    }
+    response = requests.get(url, headers=headers, cookies=cookies)
     soup = BeautifulSoup(response.content, 'lxml')
-    print(soup)
     data = soup.find_all('ul')
     for dat in data:
         print(dat)
 
-
 if __name__ == '__main__':
-    #sitemap = get_sitemap(SITE_URL)
-    with open('praha_flat.txt', 'rb') as file:
-        file = file.read()
-        descompress = descompress_sitemap(file)
-        flat_url = get_links(descompress)
-        for url in flat_url:
-            soup = make_soup(url)
-
+    cookies = get_cookie(SITE_URL)
+    sitemap = get_sitemap(SITE_URL, cookies=cookies)
+    #with open('praha_flat.txt', 'rb') as file:
+    #   file = file.read()
+    descompress = descompress_sitemap(sitemap)
+    flat_url = get_links(descompress)
+    for url in flat_url:
+        soup = make_soup(url, cookies=cookies)
